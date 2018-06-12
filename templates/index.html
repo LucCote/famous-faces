@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Famous Faces</title>
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Ubuntu" />
+    <style>
+        body{
+            font-family: Ubuntu;
+            font-size: 20px;
+            font-style: normal;
+            font-variant: normal;
+            font-weight: 500;
+            line-height: 26.4px;
+            text-align: center;
+            background-color: lightsteelblue;
+        }
+        video, canvas, #infoDiv, #snap{
+            border-radius: 20px;
+        }
+        #infoDiv{
+            /*background-color: gray;*/
+            width: 60%;
+            text-align: center;
+            margin: 0 auto;
+        }
+        #vidDiv{
+
+        }#matchDiv{
+            display: none;
+        }
+
+
+    </style>
+</head>
+<body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<div id="vidDiv">
+    <h1>Match Your Face</h1>
+    <video id="video" width="640" height="480" autoplay></video><br>
+    <button id="snap"><img src='/static/picicon.svg' width="40px" height="40px"></button>
+</div>
+<div id="matchDiv">
+    <h1 id="heading"></h1>
+    <canvas id="youCanvas" width="640" height="480"></canvas>
+    <canvas id="matchCanvas" width="640" height="480"></canvas><br>
+    <div id="infoDiv"><p id="info"></p></div>
+    <button id="replay">Play Again</button>
+</div>
+<script>
+    var video = document.getElementById('video');
+
+    // Get access to the camera!
+    if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        // Not adding `{ audio: true }` since we only want video now
+        navigator.mediaDevices.getUserMedia({ video: true }).then(function(stream) {
+            video.src = window.URL.createObjectURL(stream);
+            video.play();
+        });
+    }
+    // Elements for taking the snapshot
+    var matchCanvas = document.getElementById('matchCanvas');
+    var youCanvas = document.getElementById('youCanvas');
+    var context = matchCanvas.getContext('2d');
+    var youContext = youCanvas.getContext('2d');
+    var video = document.getElementById('video');
+    var header = document.getElementById('heading');
+    var matcher = ["billgates.jpg", "billnye.jpeg", "curieGood.jpg", "elonmusk.jpg", "janegoodall.jpeg", "jobsGood.jpg", "michiokaku.jpg", "neiltyson.jpg", "sagan.jpg", "sallyride.jpg", "swGood.jpg", "byron.jpg", "takahashi.jpg", "jemison.jpg", "stofan.jpg", "noface.jpg"];
+    var people = ["Bill Gates", "Bill Nye", "Marie Curie", "Elon Musk", "Jane Goodall", "Steve Jobs", "Michio Kaku", "Neil deGrasse Tyson", "Carl Sagan", "Sally Ride", "Susan Wojcicki", "Kari Byron", "Masayo Takahashi", "Mae C. Jemison", "Ellen Stofan", "Unable to find face"];
+    var descriptions = [
+        "Entrepreneur Bill Gates founded the world's largest software business, Microsoft, with Paul Allen, and subsequently became one of the richest men in the world.",
+        "Science educator Bill Nye is best known for hosting 'Bill Nye the Science Guy', a PBS Kids show about science.",
+        "Marie Curie's work on radioactivity made her the first woman to win a Nobel Prize. Curie's efforts led to the discovery of polonium and radium and the development of X-rays.",
+        "South African entrepreneur Elon Musk is known for founding Tesla Motors and SpaceX, which launched a landmark commercial spacecraft in 2012.",
+        "Jane Goodall is known for her years of living among chimpanzees in Tanzania to create one of the most trailblazing studies of primates in modern times.",
+        "Steve Jobs co-founded Apple Computers with Steve Wozniak. Under Jobs' guidance, the company pioneered a series of revolutionary technologies, including the iPhone and iPad.",
+        "Michio Kaku is a well-known physicist and one of the co-founders of string field theory.",
+        "Astrophysicist Neil deGrasse Tyson hosted NOVA ScienceNow and makes media appearances to encourage science and space exploration.",
+        "Carl Sagan was probably the most well-known scientist of the 1970s and 1980s. He studied extraterrestrial intelligence, advocated for nuclear disarmament, and co-wrote and hosted 'Cosmos: A Personal Voyage.'",
+        "In 1983, astronaut and astrophysicist Sally Ride became the first American woman in space aboard the space shuttle Challenger. Ride died on July 23, 2012 at the age of 61, following a battle with pancreatic cancer.",
+        "Susan Diane Wojcicki is an American technology executive. She has been the CEO of YouTube since February 2014.",
+        "For over a decade Kari Byron has been a strong presence in the world of reality-based science television. She is best known as a host on Discovery Channel’s Mythbusters but has gone on to host and produce shows spanning several networks; Head Rush, Punkin Chunkin, LDRS, Thrill Factor, Strange Trips, America Declassified, The White Rabbit Project and Positive Energy. ",
+        "Masayo Takahashi is a researcher in the area of visual disorders. After carrying out a pioneering iPS cell clinical study in summer 2013, she was named by the scientific journal Nature as one of “five to watch” scientists in 2014. In addition to her research involving the transplantation of iPS cell-derived retinal cells, Dr. Takahashi is also a clinician in the area of retinal degenerative disease.",
+        "Mae C. Jemison is the first African-American female astronaut. In 1992, she flew into space aboard the Endeavour, becoming the first African-American woman in space.",
+        "Ellen Renee Stofan (born February 24, 1961) was the Chief Scientist of NASA and served as principal advisor to NASA Administrator Charles Bolden on the agency's science programs, planning and investments. She resigned from NASA in December 2016.",
+        "We were unable to find a face in this picture please try again"
+    ];
+    var info = document.getElementById('info');
+
+    // Trigger photo take
+    document.getElementById("snap").addEventListener("click", function() {
+        $("*").css("cursor", "progress");
+        document.body.style.cursor='wait';
+        youContext.drawImage(video, 0, 0, 640, 480);
+        var image = youCanvas.toDataURL({
+           format: 'jpeg',
+           quality: 0.9
+        });
+        $.ajax({type: "POST", data: {image:image}, url: "/findface",
+                  success: function(msg){
+                   var num = matcher.indexOf(msg);
+                   header.innerText = "You look like: " + people[num];
+                   info.innerText = descriptions[num];
+                   var img = new Image;
+                   img.src = "/static/"+msg;
+                   img.onload = function(){
+                       context.drawImage(img, 0, 0, 640, 480);
+                       document.getElementById('matchDiv').style.display = 'block';
+                       document.getElementById('vidDiv').style.display = 'none';
+                       document.body.style.cursor='default';
+                       video.pause();
+                       $("*").css("cursor", "default");
+                   }
+                   
+                  }
+                });
+    });
+
+    document.getElementById("replay").addEventListener("click", function() {
+        video.play();
+        document.getElementById('matchDiv').style.display = 'none';
+        document.getElementById('vidDiv').style.display = 'block';
+    });
+</script>
+</body>
+</html>
