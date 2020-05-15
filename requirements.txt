@@ -17,7 +17,7 @@ Pillow==5.0.0
 ptyprocess==0.5.2
 pybase64==0.2.1
 pycparser==2.18
-pycryptodome==3.6.1
+pycryptodome==3.6.6
 pyOpenSSL==17.5.0
 pyparsing==2.2.0
 scikit-learn==0.19.0
