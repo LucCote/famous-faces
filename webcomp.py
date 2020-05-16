@@ -51,7 +51,7 @@ def pure_pil_alpha_to_color_v2(image, color=(255, 255, 255)):
 @app.route("/findface", methods=["POST"])
 def findface():
     start = request.form['image'].index(',') # find beggining of image representation
-    imagestr = request.form['image'][start:] # get string representation of image
+    imagestr = request.form['image'][start:]
     image_bytes = io.BytesIO(base64.decodebytes(imagestr.encode('utf-8'))) # create bit buffer and have it hold image
     im = Image.open(image_bytes) # get PIL representation of image
     
