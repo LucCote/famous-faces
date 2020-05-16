@@ -7,12 +7,12 @@ import face_recognition
 
 
 app = Flask(__name__) # Initialize Flask and serve static folder
-known_face_encodings = np.loadtxt('encodings.txt')
+known_face_encodings = np.loadtxt('encodings.txt') # load premade encodings of scientists faces
 images = ["billnye.jpeg", "janegoodall.jpeg", "neiltyson.jpg", "sallyride.jpg", "sagan.jpg", "elonmusk.jpg", "jobsGood.jpg", "curieGood.jpg", "michiokaku.jpg", "swGood.jpg", "billgates.jpg", "byron.jpg", "takahashi.jpg", "jemison.jpg", "stofan.jpg"]
 
 
+# returns the index of the lowest value of an array
 def getbestindex(w):
-    # returns the index of the lowest value of an array
     value = 0
     for i in range(1, len(w)):
         if w[i] < w[value]:
