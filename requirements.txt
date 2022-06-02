@@ -9,7 +9,7 @@ face-recognition-models==0.3.0
 Flask==0.12.2
 gunicorn==19.8.1
 h5py==2.7.1
-html5lib==0.9999999
+html5lib==0.99999999
 matplotlib==2.0.2
 numpy==1.14.0
 opencv-python==3.3.0.10
